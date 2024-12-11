@@ -185,28 +185,6 @@ css = """#input_img {max-width: 1024px !important} #output_vid {max-width: 1024p
 
 
 with gr.Blocks(css=css) as demo:
-    gr.Markdown(
-        "<div align='center'> <h1> MuseV: Infinite-length and High Fidelity Virtual Human Video Generation with Visual Conditioned Parallel Denoising</span> </h1> \
-                    <h2 style='font-weight: 450; font-size: 1rem; margin: 0rem'>\
-                    </br>\
-                    Zhiqiang Xia <sup>*</sup>,\
-                    Zhaokang Chen<sup>*</sup>,\
-                    Bin Wu<sup>†</sup>,\
-                    Chao Li,\
-                    Kwok-Wai Hung,\
-                    Chao Zhan,\
-                    Yingjie He,\
-                    Wenjiang Zhou\
-                    (<sup>*</sup>Equal Contribution,  <sup>†</sup>Corresponding Author, benbinwu@tencent.com)\
-                    </br>\
-                    Lyra Lab, Tencent Music Entertainment\
-                </h2> \
-                <a style='font-size:18px;color: #000000' href='https://github.com/TMElyralab/MuseV'>[Github Repo]</a>\
-                <a style='font-size:18px;color: #000000'>, which is important to Open-Source projects. Thanks!</a>\
-                <a style='font-size:18px;color: #000000' href=''> [ArXiv(Coming Soon)] </a>\
-                <a style='font-size:18px;color: #000000' href=''> [Project Page(Coming Soon)] </a> \
-                <a style='font-size:18px;color: #000000'>If MuseV is useful, please help star the repo~ </a> </div>"
-    )
     with gr.Tab("Text to Video"):
         with gr.Row():
             with gr.Column():
