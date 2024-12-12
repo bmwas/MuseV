@@ -1,4 +1,5 @@
 import os
+import shutil
 import time
 import argparse
 import numpy as np
@@ -13,6 +14,27 @@ load_dotenv()
 ProjectDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 CheckpointsDir = os.path.join(ProjectDir, "checkpoints")
 max_image_edge = 960
+
+def copy_png_files(src_directory, dst_directory):
+    """
+    Copies all .png files from the source directory to the destination directory.
+    If the destination directory does not exist, it is created.
+    
+    :param src_directory: Path to the source directory containing .png files.
+    :param dst_directory: Path to the destination directory where .png files will be copied.
+    """
+    # Ensure the destination directory exists
+    if not os.path.exists(dst_directory):
+        os.makedirs(dst_directory)
+    
+    # Iterate through the source directory
+    for filename in os.listdir(src_directory):
+        # Check if the file is a .png file
+        if filename.lower().endswith('.png'):
+            src_file_path = os.path.join(src_directory, filename)
+            dst_file_path = os.path.join(dst_directory, filename)
+            # Copy the file to the destination directory
+            shutil.copy2(src_file_path, dst_file_path)
 
 def upload_files_to_hf(repo_id, video_path, image_path, target_dir='', token=None):
     """
