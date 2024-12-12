@@ -35,7 +35,6 @@ def upload_files_to_hf(repo_id, video_path, image_path, target_dir='', token=Non
     api = HfApi()
 
     # Retrieve the token
-    token =  None
     if token is None:
         token = os.getenv('HUGGINGFACE_TOKEN')
         if token is None:
@@ -204,7 +203,6 @@ python app_terminal.py \
     --video_length 12 \
     --img_edge_ratio 1.0 \
     --hf_repo_id "Benson/musetalkmodels" \
-    --hf_target_dir "/home/user/app/MuseV/scripts/gradio/results" \
-    --hf_token "your_hf_token"  # Optional if set as env variable
+    --hf_target_dir "/home/user/app/MuseV/scripts/gradio/results" 
 
 """
