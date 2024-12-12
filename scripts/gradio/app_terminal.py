@@ -191,9 +191,11 @@ def main():
         img_edge_ratio_infact
     )
 
-    # Save the output video (example: save as 'output.mp4')
-    #output_video.save('output.mp4')
+    #copy png images to a non github directory (for huggingface uploads)
+    dst_directory = "./results"
+    copy_png_files(image_path, dst_directory)
     # Upload the video and image to HuggingFace Hub
+    
     try:
         upload_files_to_hf(
             repo_id=args.hf_repo_id,
