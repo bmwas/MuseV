@@ -7,7 +7,8 @@ from huggingface_hub import snapshot_download
 from gradio_text2video import online_t2v_inference
 from huggingface_hub import HfApi, HfFolder, Repository, create_repo
 import logging
-
+from dotenv import load_dotenv
+load_dotenv()
 # Constants and directories
 ProjectDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 CheckpointsDir = os.path.join(ProjectDir, "checkpoints")
@@ -34,8 +35,9 @@ def upload_files_to_hf(repo_id, video_path, image_path, target_dir='', token=Non
     api = HfApi()
 
     # Retrieve the token
+    token =  None
     if token is None:
-        token = HfFolder.get_token()
+        token = os.getenv('HUGGINGFACE_TOKEN')
         if token is None:
             raise ValueError("No token provided and 'HUGGINGFACE_TOKEN' not set.")
 
