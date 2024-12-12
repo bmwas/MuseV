@@ -14,15 +14,15 @@ ProjectDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 CheckpointsDir = os.path.join(ProjectDir, "checkpoints")
 max_image_edge = 960
 
-
 def upload_files_to_hf(repo_id, video_path, image_path, target_dir='', token=None):
     """
-    Uploads the specified video and image files to the HuggingFace repository.
+    Uploads the specified video and image files (or directories) to the HuggingFace repository.
+    If a directory is provided instead of a file, all files within the directory are uploaded.
 
     Args:
         repo_id (str): The repository ID in the format 'username/repo_name'.
-        video_path (str): The local path to the video file to upload.
-        image_path (str): The local path to the image file to upload.
+        video_path (str): The local path to the video file or directory to upload.
+        image_path (str): The local path to the image file or directory to upload.
         target_dir (str, optional): The target directory in the repo to upload the files to.
                                     Defaults to the root directory.
         token (str, optional): The HuggingFace API token. If not provided, it will be read from the
@@ -53,47 +53,46 @@ def upload_files_to_hf(repo_id, video_path, image_path, target_dir='', token=Non
             logger.error(f"Failed to create repository '{repo_id}': {create_e}")
             raise create_e
 
-    # Determine the target paths in the repo
-    video_filename = os.path.basename(video_path)
-    image_filename = os.path.basename(image_path)
-    if target_dir:
-        video_target = os.path.join(target_dir, video_filename)
-        image_target = os.path.join(target_dir, image_filename)
-    else:
-        video_target = video_filename
-        image_target = image_filename
+    def upload_single_file(local_file_path, repo_id, repo_target_path):
+        # Upload a single file
+        logger.info(f"Uploading {local_file_path} to {repo_id}/{repo_target_path}...")
+        try:
+            api.upload_file(
+                path_or_fileobj=local_file_path,
+                path_in_repo=repo_target_path,
+                repo_id=repo_id,
+                repo_type='model',
+                token=token,
+            )
+            logger.info(f"File '{local_file_path}' uploaded successfully.")
+        except Exception as e:
+            logger.error(f"Failed to upload file '{local_file_path}': {e}")
+            raise e
 
-    # Upload the video
-    try:
-        logger.info(f"Uploading {video_path} to {repo_id}/{video_target}...")
-        api.upload_file(
-            path_or_fileobj=video_path,
-            path_in_repo=video_target,
-            repo_id=repo_id,
-            repo_type='model',
-            token=token,
-        )
-        logger.info(f"Video '{video_filename}' uploaded successfully.")
-    except Exception as upload_video_e:
-        logger.error(f"Failed to upload video '{video_filename}': {upload_video_e}")
-        raise upload_video_e
+    def upload_path(local_path, repo_id, base_target_dir=''):
+        # Check if local_path is a directory or a file
+        if os.path.isdir(local_path):
+            # Recursively upload all files in the directory
+            for root, dirs, files in os.walk(local_path):
+                for file in files:
+                    file_local_path = os.path.join(root, file)
+                    # Determine relative path to maintain directory structure in repo
+                    relative_path = os.path.relpath(file_local_path, local_path)
+                    repo_target_path = os.path.join(base_target_dir, relative_path)
+                    upload_single_file(file_local_path, repo_id, repo_target_path)
+        else:
+            # It's a single file
+            filename = os.path.basename(local_path)
+            repo_target_path = os.path.join(base_target_dir, filename) if base_target_dir else filename
+            upload_single_file(local_path, repo_id, repo_target_path)
 
-    # Upload the image
-    try:
-        logger.info(f"Uploading {image_path} to {repo_id}/{image_target}...")
-        api.upload_file(
-            path_or_fileobj=image_path,
-            path_in_repo=image_target,
-            repo_id=repo_id,
-            repo_type='model',
-            token=token,
-        )
-        logger.info(f"Image '{image_filename}' uploaded successfully.")
-    except Exception as upload_image_e:
-        logger.error(f"Failed to upload image '{image_filename}': {upload_image_e}")
-        raise upload_image_e
+    # Upload the "video_path" (file or directory)
+    upload_path(video_path, repo_id, target_dir)
 
-    logger.info("Both files uploaded successfully.")
+    # Upload the "image_path" (file or directory)
+    upload_path(image_path, repo_id, target_dir)
+
+    logger.info("All specified files/directories uploaded successfully.")
 
 def download_model():
     if not os.path.exists(CheckpointsDir):
@@ -142,8 +141,8 @@ def main():
     parser.add_argument('--video_length', type=int, default=12, help='Length of the generated video')
     parser.add_argument('--img_edge_ratio', type=float, default=1.0, help='Image edge ratio')
     parser.add_argument('--hf_repo_id', type=str, required=True, help='HuggingFace repository ID (e.g., "username/repo_name")')
-    parser.add_argument('--hf_target_dir', type=str, default='', help='Target directory in the repo to upload files to')
-    parser.add_argument('--hf_token', type=str, default=None, help='HuggingFace API token (optional if set as env variable)')
+    parser.add_argument('--hf_video_path', type=str, default='', help='Path to video in local directory')
+    parser.add_argument('--hf_image_path', type=str, default='', help='Path to image (i.e.image used to seed video generation)')
     
 
     args = parser.parse_args()
@@ -176,10 +175,8 @@ def main():
     try:
         upload_files_to_hf(
             repo_id=args.hf_repo_id,
-            video_path=args.hf_target_dir,
-            image_path=args.image,
-            target_dir=args.hf_target_dir,
-            token=args.hf_token
+            video_path=args.hf_video_path,
+            image_path=args.hf_image_path,
         )
     except Exception as e:
         print(f"Failed to upload files to HuggingFace Hub: {e}")
@@ -203,6 +200,7 @@ python app_terminal.py \
     --video_length 12 \
     --img_edge_ratio 1.0 \
     --hf_repo_id "Benson/musetalkmodels" \
-    --hf_target_dir "/home/user/app/MuseV/scripts/gradio/results" 
+    --hf_video_path "/home/user/app/MuseV/scripts/gradio/results" \
+    --hf_image_path "/home/user/app/MuseV/scripts/gradio/musevtests"
 
 """
