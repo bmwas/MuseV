@@ -176,7 +176,7 @@ def main():
     try:
         upload_files_to_hf(
             repo_id=args.hf_repo_id,
-            video_path=output_video_path,
+            video_path=args.hf_target_dir,
             image_path=args.image,
             target_dir=args.hf_target_dir,
             token=args.hf_token
@@ -191,6 +191,7 @@ if __name__ == "__main__":
 
 """
 python app_terminal.py --prompt "(masterpiece, best quality, highres:1),(1boy, solo:1),(eye blinks:1.8),(head wave:1.3)" --image "/home/user/app/MuseV/scripts/gradio/musevtests/man.png" --seed -1 --fps 6 --width -1 --height -1 --video_length 12 --img_edge_ratio 1.0
+
 
 python app_terminal.py \
     --prompt "(masterpiece, best quality, highres:1),(1boy, solo:1),(eye blinks:1.8),(head wave:1.3)" \
