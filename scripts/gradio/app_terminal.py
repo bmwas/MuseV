@@ -5,12 +5,94 @@ import numpy as np
 from PIL import Image
 from huggingface_hub import snapshot_download
 from gradio_text2video import online_t2v_inference
-
+from huggingface_hub import HfApi, HfFolder, Repository, create_repo
+import logging
 
 # Constants and directories
 ProjectDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 CheckpointsDir = os.path.join(ProjectDir, "checkpoints")
 max_image_edge = 960
+
+
+def upload_files_to_hf(repo_id, video_path, image_path, target_dir='', token=None):
+    """
+    Uploads the specified video and image files to the HuggingFace repository.
+
+    Args:
+        repo_id (str): The repository ID in the format 'username/repo_name'.
+        video_path (str): The local path to the video file to upload.
+        image_path (str): The local path to the image file to upload.
+        target_dir (str, optional): The target directory in the repo to upload the files to.
+                                    Defaults to the root directory.
+        token (str, optional): The HuggingFace API token. If not provided, it will be read from the
+                               environment variable 'HUGGINGFACE_TOKEN'.
+    """
+    # Initialize logging
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
+    api = HfApi()
+
+    # Retrieve the token
+    if token is None:
+        token = HfFolder.get_token()
+        if token is None:
+            raise ValueError("No token provided and 'HUGGINGFACE_TOKEN' not set.")
+
+    # Check if the repository exists; if not, create it
+    try:
+        api.repo_info(repo_id, token=token)
+        logger.info(f"Repository '{repo_id}' found.")
+    except Exception as e:
+        logger.warning(f"Repository '{repo_id}' not found. Attempting to create it.")
+        try:
+            create_repo(repo_id=repo_id, token=token)
+            logger.info(f"Repository '{repo_id}' created successfully.")
+        except Exception as create_e:
+            logger.error(f"Failed to create repository '{repo_id}': {create_e}")
+            raise create_e
+
+    # Determine the target paths in the repo
+    video_filename = os.path.basename(video_path)
+    image_filename = os.path.basename(image_path)
+    if target_dir:
+        video_target = os.path.join(target_dir, video_filename)
+        image_target = os.path.join(target_dir, image_filename)
+    else:
+        video_target = video_filename
+        image_target = image_filename
+
+    # Upload the video
+    try:
+        logger.info(f"Uploading {video_path} to {repo_id}/{video_target}...")
+        api.upload_file(
+            path_or_fileobj=video_path,
+            path_in_repo=video_target,
+            repo_id=repo_id,
+            repo_type='model',
+            token=token,
+        )
+        logger.info(f"Video '{video_filename}' uploaded successfully.")
+    except Exception as upload_video_e:
+        logger.error(f"Failed to upload video '{video_filename}': {upload_video_e}")
+        raise upload_video_e
+
+    # Upload the image
+    try:
+        logger.info(f"Uploading {image_path} to {repo_id}/{image_target}...")
+        api.upload_file(
+            path_or_fileobj=image_path,
+            path_in_repo=image_target,
+            repo_id=repo_id,
+            repo_type='model',
+            token=token,
+        )
+        logger.info(f"Image '{image_filename}' uploaded successfully.")
+    except Exception as upload_image_e:
+        logger.error(f"Failed to upload image '{image_filename}': {upload_image_e}")
+        raise upload_image_e
+
+    logger.info("Both files uploaded successfully.")
 
 def download_model():
     if not os.path.exists(CheckpointsDir):
