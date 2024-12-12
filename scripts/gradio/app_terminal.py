@@ -193,6 +193,7 @@ def main():
 
     #copy png images to a non github directory (for huggingface uploads)
     dst_directory = "./results"
+    image_path = args.hf_image_path
     copy_png_files(image_path, dst_directory)
     # Upload the video and image to HuggingFace Hub
     
