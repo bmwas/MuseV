@@ -90,7 +90,7 @@ def upload_files_to_hf(repo_id, video_path, image_path, target_dir='', token=Non
     upload_path(video_path, repo_id, target_dir)
 
     # Upload the "image_path" (file or directory)
-    upload_path(image_path, repo_id, target_dir)
+    #upload_path(image_path, repo_id, target_dir)
 
     logger.info("All specified files/directories uploaded successfully.")
 
