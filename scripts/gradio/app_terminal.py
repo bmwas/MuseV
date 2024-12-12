@@ -140,6 +140,10 @@ def main():
     parser.add_argument('--height', type=int, default=-1, help='Height of the output video')
     parser.add_argument('--video_length', type=int, default=12, help='Length of the generated video')
     parser.add_argument('--img_edge_ratio', type=float, default=1.0, help='Image edge ratio')
+    parser.add_argument('--hf_repo_id', type=str, required=True, help='HuggingFace repository ID (e.g., "username/repo_name")')
+    parser.add_argument('--hf_target_dir', type=str, default='', help='Target directory in the repo to upload files to')
+    parser.add_argument('--hf_token', type=str, default=None, help='HuggingFace API token (optional if set as env variable)')
+    
 
     args = parser.parse_args()
 
@@ -167,11 +171,39 @@ def main():
 
     # Save the output video (example: save as 'output.mp4')
     #output_video.save('output.mp4')
+    # Upload the video and image to HuggingFace Hub
+    try:
+        upload_files_to_hf(
+            repo_id=args.hf_repo_id,
+            video_path=output_video_path,
+            image_path=args.image,
+            target_dir=args.hf_target_dir,
+            token=args.hf_token
+        )
+    except Exception as e:
+        print(f"Failed to upload files to HuggingFace Hub: {e}")
+    else:
+        print("Files uploaded to HuggingFace Hub successfully.")
 
 if __name__ == "__main__":
     main()
 
 """
 python app_terminal.py --prompt "(masterpiece, best quality, highres:1),(1boy, solo:1),(eye blinks:1.8),(head wave:1.3)" --image "/home/user/app/MuseV/scripts/gradio/musevtests/man.png" --seed -1 --fps 6 --width -1 --height -1 --video_length 12 --img_edge_ratio 1.0
+
+python app_terminal.py \
+    --prompt "(masterpiece, best quality, highres:1),(1boy, solo:1),(eye blinks:1.8),(head wave:1.3)" \
+    --image "/home/user/app/MuseV/scripts/gradio/musevtests/man.png" \
+    --seed -1 \
+    --fps 6 \
+    --width 1 \
+    --height 1 \
+    --video_length 12 \
+    --img_edge_ratio 1.0 \
+    --hf_repo_id "your_username/your_repo" \
+    --hf_target_dir "uploads/videos" \
+    --hf_token "your_hf_token"  # Optional if set as env variable
+
+
 
 """
