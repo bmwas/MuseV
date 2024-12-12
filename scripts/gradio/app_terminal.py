@@ -197,8 +197,8 @@ python app_terminal.py \
     --image "/home/user/app/MuseV/scripts/gradio/musevtests/man.png" \
     --seed -1 \
     --fps 6 \
-    --width 1 \
-    --height 1 \
+    --width -1 \
+    --height -1 \
     --video_length 12 \
     --img_edge_ratio 1.0 \
     --hf_repo_id "Benson/musetalkmodels" \
