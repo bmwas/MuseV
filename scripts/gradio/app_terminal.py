@@ -201,10 +201,8 @@ python app_terminal.py \
     --height 1 \
     --video_length 12 \
     --img_edge_ratio 1.0 \
-    --hf_repo_id "your_username/your_repo" \
-    --hf_target_dir "uploads/videos" \
+    --hf_repo_id "Benson/musetalkmodels" \
+    --hf_target_dir "/home/user/app/MuseV/scripts/gradio/results/*.mp4" \
     --hf_token "your_hf_token"  # Optional if set as env variable
-
-
 
 """
