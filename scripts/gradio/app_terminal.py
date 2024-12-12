@@ -84,7 +84,7 @@ def main():
     )
 
     # Save the output video (example: save as 'output.mp4')
-    output_video.save('output.mp4')
+    #output_video.save('output.mp4')
 
 if __name__ == "__main__":
     main()
