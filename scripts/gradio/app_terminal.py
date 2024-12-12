@@ -33,11 +33,12 @@ def upload_files_to_hf(repo_id, video_path, image_path, target_dir='', token=Non
 
     api = HfApi()
 
-    # Retrieve the token
+    # Retrieve the token from the environment if not provided
     if token is None:
-        token = HfFolder.get_token()
+        token = os.getenv('HUGGINGFACE_TOKEN')
         if token is None:
-            raise ValueError("No token provided and 'HUGGINGFACE_TOKEN' not set.")
+            raise ValueError("HuggingFace token not provided. Set the 'HUGGINGFACE_TOKEN' environment variable.")
+
 
     # Check if the repository exists; if not, create it
     try:
