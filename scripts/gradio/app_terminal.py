@@ -90,6 +90,6 @@ if __name__ == "__main__":
     main()
 
 """
-python text2video.py --prompt "Your text prompt" --image "path/to/your/image.jpg" --seed -1 --fps 6 --width -1 --height -1 --video_length 12 --img_edge_ratio 1.0
+python app_terminal.py --prompt "(masterpiece, best quality, highres:1),(1boy, solo:1),(eye blinks:1.8),(head wave:1.3)" --image "/home/user/app/MuseV/scripts/gradio/musevtests/man.png" --seed -1 --fps 6 --width -1 --height -1 --video_length 12 --img_edge_ratio 1.0
 
 """
