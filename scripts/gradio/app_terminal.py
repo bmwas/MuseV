@@ -13,7 +13,6 @@ ProjectDir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 CheckpointsDir = os.path.join(ProjectDir, "checkpoints")
 max_image_edge = 960
 
-
 def upload_files_to_hf(repo_id, video_path, image_path, target_dir='', token=None):
     """
     Uploads the specified video and image files to the HuggingFace repository.
@@ -33,12 +32,11 @@ def upload_files_to_hf(repo_id, video_path, image_path, target_dir='', token=Non
 
     api = HfApi()
 
-    # Retrieve the token from the environment if not provided
+    # Retrieve the token
     if token is None:
-        token = os.getenv('HUGGINGFACE_TOKEN')
+        token = HfFolder.get_token()
         if token is None:
-            raise ValueError("HuggingFace token not provided. Set the 'HUGGINGFACE_TOKEN' environment variable.")
-
+            raise ValueError("No token provided and 'HUGGINGFACE_TOKEN' not set.")
 
     # Check if the repository exists; if not, create it
     try:
@@ -94,6 +92,7 @@ def upload_files_to_hf(repo_id, video_path, image_path, target_dir='', token=Non
         raise upload_image_e
 
     logger.info("Both files uploaded successfully.")
+
 
 def download_model():
     if not os.path.exists(CheckpointsDir):
